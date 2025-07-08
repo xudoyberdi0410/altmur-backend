@@ -1,0 +1,64 @@
+# Docker Compose for local development
+# - PostgreSQL database
+# - pgAdmin for DB management (dev only)
+#
+# The app itself is NOT run in Docker, only DB and pgAdmin are containerized.
+
+version: '3.8'
+
+services:
+
+  backend:
+    build: .
+    container_name: altmur_backend
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - backend
+    # Для dev: код монтируется, hot-reload можно добавить через --reload
+    profiles: ["dev"]
+
+  db:
+    image: postgres:16
+    container_name: altmur_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: altmur_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - backend
+    # Remove in production
+    # profiles: ["dev"]
+
+volumes:
+  pgdata:
+
+networks:
+  backend:
+    driver: bridge

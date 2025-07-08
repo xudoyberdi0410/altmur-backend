@@ -6,9 +6,9 @@ from sqlalchemy.orm import Mapped, mapped_column,  relationship
 from sqlalchemy.sql import func
 
 from src.core.database import Base
-from src.auth.models import User
-from src.chat.models import Message, PinnedMessage
-from src.moderation.models import BanList
+# from src.auth.models import User
+# from src.chat.models import Message, PinnedMessage
+# from src.moderation.models import Ban
 
 
 class RoomRole(str, PyEnum):
@@ -20,7 +20,7 @@ class Room(Base):
     __tablename__ = "rooms"
 
     room_id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    name: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     is_private: Mapped[bool] = mapped_column(default=True)
     description: Mapped[Optional[str]] = mapped_column(String(150), nullable=True)
     avatar_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
@@ -59,8 +59,8 @@ class RoomMember(Base):
     __tablename__ = "room_members"
 
     member_id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
-    room_id: Mapped[int] = mapped_column(ForeignKey("rooms.room_id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False, index=True)
+    room_id: Mapped[int] = mapped_column(ForeignKey("rooms.room_id"), nullable=False, index=True)
     role: Mapped[RoomRole] = mapped_column(Enum(RoomRole, name="room_role"), default=RoomRole.member, nullable=False)
     joined_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     link_id: Mapped[Optional[int]] = mapped_column(ForeignKey("join_links.link_id"), nullable=True)
@@ -83,8 +83,8 @@ class JoinLink(Base):
 
     link_id: Mapped[int] = mapped_column(primary_key=True)
     code: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
-    room_id: Mapped[int] = mapped_column(ForeignKey("rooms.room_id"), nullable=False)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False) # Link creator
+    room_id: Mapped[int] = mapped_column(ForeignKey("rooms.room_id"), nullable=False, index=True)  # Link to the room
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False, index=True)  # Link to the room # Link creator
     created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
     expired_at: Mapped[Optional[DateTime]] = mapped_column(DateTime, nullable=True)

@@ -4,9 +4,9 @@ from sqlalchemy import String, DateTime, Boolean, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
-from rooms.models import JoinLink, RoomMember
-from chat.models import Message
-from moderation.models import Ban
+# from src.rooms.models import JoinLink, RoomMember
+# from src.chat.models import Message
+# from src.moderation.models import Ban
 from src.core.database import Base
 
 
@@ -18,7 +18,7 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
     family_name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     email: Mapped[Optional[str]] = mapped_column(String(100), unique=True, nullable=True)
-    telegram_id: Mapped[Optional[int]] = mapped_column(Integer, unique=True, nullable=True)
+    telegram_id: Mapped[Optional[int]] = mapped_column(Integer, unique=True, nullable=True, index=True)
     avatar_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -49,7 +49,7 @@ class UserSession(Base):
     __tablename__ = "user_sessions"
 
     session_id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False, index=True)
     refresh_token: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     user_agent: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     ip_address: Mapped[str] = mapped_column(String(45), nullable=True)  # IPv6 support
