@@ -68,7 +68,7 @@ async def test_user_repository_full(test_session):
     assert exists_after_delete is False
 
 @pytest.mark.asyncio
-async def test_user_session_repository(test_session):
+async def test_user_session_repository_full(test_session):
     user_repo = repository.UserRepository(test_session)
     session_repo = repository.UserSessionRepository(test_session)
 
