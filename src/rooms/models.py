@@ -48,8 +48,8 @@ class Room(Base):
         back_populates="room",
         cascade="all, delete-orphan",
     )
-    ban_list: Mapped[List["BanList"]] = relationship(
-        "BanList",
+    ban_list: Mapped[List["Ban"]] = relationship(
+        "Ban",
         back_populates="room",
         cascade="all, delete-orphan",
     )
